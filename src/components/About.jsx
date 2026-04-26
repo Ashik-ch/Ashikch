@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
+import profile from '../assets/ashik.jpg';
 
 const stats = [
   { label: 'Years Experience', value: '3+' },
@@ -35,9 +36,9 @@ export default function About() {
           >
             <div className="relative rounded-3xl overflow-hidden glass-card p-2 aspect-[4/5] group max-w-md mx-auto">
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-              <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                alt="Ashik Portrait" 
+              <img
+                src={profile}
+                alt="Ashik Portrait"
                 className="w-full h-full object-cover rounded-2xl transition-transform duration-700 group-hover:scale-105"
               />
             </div>
@@ -63,7 +64,7 @@ export default function About() {
 
             <div className="grid grid-cols-2 gap-6">
               {stats.map((stat, idx) => (
-                <motion.div 
+                <motion.div
                   key={idx}
                   whileHover={{ y: -5 }}
                   className="glass p-6 rounded-2xl border border-gray-100 shadow-sm"

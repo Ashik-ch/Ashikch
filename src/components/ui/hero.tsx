@@ -170,7 +170,7 @@ export default function ShaderShowcase() {
 
             <motion.a
               href="#contact"
-              className="px-10 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-f97316 text-white font-semibold text-sm shadow-lg"
+              className="px-10 py-4 rounded-full bg-white/10 text-white font-semibold text-sm shadow-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >

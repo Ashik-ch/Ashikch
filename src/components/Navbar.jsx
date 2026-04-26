@@ -25,15 +25,14 @@ export default function Navbar() {
 
   return (
     <motion.header
-      className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
-        scrolled ? 'py-4' : 'py-6'
-      }`}
+      className={`fixed top-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4' : 'py-6'
+        }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className={`flex items-center justify-between rounded-2xl px-6 py-4 transition-all duration-300 ${scrolled ? 'glass shadow-lg' : 'bg-transparent'}`}>
+        <div className={`flex items-center justify-between rounded-2xl px-6 py-4 transition-all duration-300 glass shadow-lg }`}>
           <a href="#home" className="text-2xl font-heading font-bold text-gray-900 tracking-tighter interactive">
             Ashik<span className="text-blue-600">.</span>
           </a>
