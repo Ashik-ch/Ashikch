@@ -3,13 +3,15 @@ import { Mail, MapPin, Send, Code, Globe, MessageCircle } from 'lucide-react';
 
 import { portfolioData } from '../data/portfolioData';
 
+const { contact, personal_info } = portfolioData;
+
+const socialLinks = [
+  { icon: Code, url: personal_info.github },
+  { icon: Globe, url: personal_info.portfolio },
+  { icon: MessageCircle, url: personal_info.linkedin }
+];
+
 export default function Contact() {
-  const { contact, personal_info } = portfolioData;
-  const socialLinks = [
-    { icon: Code, url: personal_info.github },
-    { icon: Globe, url: personal_info.portfolio },
-    { icon: MessageCircle, url: personal_info.linkedin }
-  ];
 
   return (
     <section id="contact" className="py-32 relative bg-gray-900 text-white overflow-hidden mt-32 rounded-t-[3rem]">

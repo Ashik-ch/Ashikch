@@ -1,47 +1,47 @@
 import { motion } from 'framer-motion';
 import { portfolioData } from '../data/portfolioData';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
+const SkillSection = ({ title, skills, color }) => (
+  <div className="mb-12">
+    <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6">{title}</h3>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-50px" }}
+      className="flex flex-wrap gap-4"
+    >
+      {skills.map((skill, index) => (
+        <motion.div
+          key={index}
+          variants={itemVariants}
+          whileHover={{ scale: 1.05, y: -2 }}
+          className={`px-6 py-3 rounded-full border border-gray-100 shadow-sm font-medium ${color} bg-white transition-all cursor-default`}
+        >
+          {skill}
+        </motion.div>
+      ))}
+    </motion.div>
+  </div>
+);
+
 export default function Skills() {
   const { technical, tools, soft_skills } = portfolioData.skills;
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
-  const SkillSection = ({ title, skills, color }) => (
-    <div className="mb-12">
-      <h3 className="text-2xl font-heading font-bold text-gray-900 mb-6">{title}</h3>
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-50px" }}
-        className="flex flex-wrap gap-4"
-      >
-        {skills.map((skill, index) => (
-          <motion.div
-            key={index}
-            variants={itemVariants}
-            whileHover={{ scale: 1.05, y: -2 }}
-            className={`px-6 py-3 rounded-full border border-gray-100 shadow-sm font-medium ${color} bg-white transition-all cursor-default`}
-          >
-            {skill}
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
-  );
 
   return (
     <section id="skills" className="py-32 relative">
