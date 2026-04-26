@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import PageLoader from './components/PageLoader';
 import Layout from './components/Layout';
-import Hero from './components/Hero';
+import DemoOne from './components/demo';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
@@ -21,7 +21,8 @@ function App() {
 
       {!loading && (
         <Layout>
-          <Hero />
+          <DemoOne />
+          {/* <Hero /> */}
           <About />
           <Skills />
           <Projects />
