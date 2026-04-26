@@ -1,28 +1,8 @@
 import { motion } from 'framer-motion';
 
-const experiences = [
-  {
-    company: "VAAS Intelligent Technology Solutions",
-    location: "Kochi",
-    role: "Internship",
-    technologies: ["Angular 18", "PrimeFlex", "PrimeNG", "RXJS", "Bootstrap", "API Integration"],
-    period: "2023 - Present"
-  },
-  {
-    company: "AmruthaShala",
-    location: "Hyderabad",
-    role: "Angular Developer",
-    technologies: ["Angular 15", "Angular Material", "SCSS", "Bootstrap", "Slack", "API Integration"],
-    period: "2022 - 2023"
-  },
-  {
-    company: "Luminar",
-    location: "Kozhikode",
-    role: "MEAN Stack Intern",
-    technologies: ["Angular", "Node.js", "Express.js", "Bootstrap", "MongoDB"],
-    period: "2021 - 2022"
-  }
-];
+import { portfolioData } from '../data/portfolioData';
+
+const experiences = portfolioData.experience;
 
 export default function Experience() {
   return (

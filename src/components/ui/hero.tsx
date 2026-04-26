@@ -4,9 +4,12 @@ import { MeshGradient, PulsingBorder } from "@paper-design/shaders-react"
 import { motion } from "framer-motion"
 import Typewriter from "typewriter-effect"
 
+import { portfolioData } from "../../data/portfolioData"
+
 export default function ShaderShowcase() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isActive, setIsActive] = useState(false)
+  const titles = portfolioData.personal_info.title.split('|').map(t => t.trim());
 
   useEffect(() => {
     const handleMouseEnter = () => setIsActive(true)
@@ -107,7 +110,7 @@ export default function ShaderShowcase() {
           >
             <Typewriter
               options={{
-                strings: ["Software Developer", "Frontend Engineer", "Creative Builder", "UI / UX Crafter",],
+                strings: titles,
                 autoStart: true,
                 loop: true,
                 delay: 50,
@@ -138,7 +141,7 @@ export default function ShaderShowcase() {
               Hi, I'm
             </motion.span>
 
-            <span className="block font-black">Ashik C H</span>
+            <span className="block font-black">{portfolioData.personal_info.name}</span>
           </motion.h1>
 
           <motion.p

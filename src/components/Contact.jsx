@@ -1,7 +1,16 @@
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Send, Code, Globe, MessageCircle } from 'lucide-react';
 
+import { portfolioData } from '../data/portfolioData';
+
 export default function Contact() {
+  const { contact, personal_info } = portfolioData;
+  const socialLinks = [
+    { icon: Code, url: personal_info.github },
+    { icon: Globe, url: personal_info.portfolio },
+    { icon: MessageCircle, url: personal_info.linkedin }
+  ];
+
   return (
     <section id="contact" className="py-32 relative bg-gray-900 text-white overflow-hidden mt-32 rounded-t-[3rem]">
       {/* Decorative Background Elements */}
@@ -31,7 +40,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Email Me</div>
-                  <a href="mailto:hello@example.com" className="font-medium hover:text-blue-400 transition-colors">hello@example.com</a>
+                  <a href={`mailto:${contact.email}`} className="font-medium hover:text-blue-400 transition-colors">{contact.email}</a>
                 </div>
               </div>
               
@@ -41,17 +50,19 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Location</div>
-                  <div className="font-medium">Kochi, Kerala</div>
+                  <div className="font-medium">{contact.address}</div>
                 </div>
               </div>
             </div>
 
             {/* Social Icons */}
             <div className="flex gap-4">
-              {[Code, Globe, MessageCircle].map((Icon, i) => (
+              {socialLinks.map(({ icon: Icon, url }, i) => (
                 <a 
                   key={i} 
-                  href="#" 
+                  href={url} 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-300 interactive"
                 >
                   <Icon size={18} />
@@ -119,7 +130,7 @@ export default function Contact() {
 
         {/* Footer */}
         <div className="mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 pb-8">
-          <div>© {new Date().getFullYear()} Ashik. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} {personal_info.name}. All rights reserved.</div>
           <div className="flex gap-6">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
