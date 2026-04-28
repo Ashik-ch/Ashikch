@@ -196,7 +196,7 @@ export default function ShaderShowcase() {
             }}
           />
 
-          <motion.svg
+          {/* <motion.svg
             className="absolute inset-0 w-full h-full"
             viewBox="0 0 100 100"
             animate={{ rotate: 360 }}
@@ -216,7 +216,7 @@ export default function ShaderShowcase() {
                 React • Next.js • UI Design • Framer Motion • Creative Code •
               </textPath>
             </text>
-          </motion.svg>
+          </motion.svg> */}
         </div>
       </div>
     </div>
