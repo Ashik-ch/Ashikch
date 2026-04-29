@@ -16,7 +16,7 @@ export const portfolioData = {
       company: "Bytrix Hub",
       location: "Dubai",
       role: "Lead Software Engineer",
-      technologies: ["Angular 22", "React, Projet Deployment", "Bootstrap", "Github", "TypeScript"]
+      technologies: ["Angular 22", "React", "Projet Deployment", "Bootstrap", "Github", "TypeScript"]
     },
     {
       company: "VAAS Intelligent Technology Solutions",
