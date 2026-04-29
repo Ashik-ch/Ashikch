@@ -1,33 +1,39 @@
 export const portfolioData = {
   personal_info: {
     name: "Ashik C H",
-    title: "Full Stack Developer | Designer",
+    title: "Software Engineer| Designer | System Architect",
     birthdate: "17/12/1998",
-    email: "ashikch7117@gmail.com",
-    phone: "+91 9645937117",
-    address: "BurDubai, UAE -",
+    email: "ashik@ashikch.com",
+    phone: "+971557935653",
+    address: "Bur Dubai, UAE",
     linkedin: "http://www.linkedin.com/in/ashikch",
     github: "https://github.com/Ashik-ch",
-    portfolio: "https://ashik-ch.github.io/Ashik-CH/"
+    portfolio: "https://ashikch.com"
   },
-  about: "Frontend Software Engineer with 2+ years of experience in building and maintaining responsive web applications using Angular. Skilled in developing scalable, high-performance user interfaces. Strong collaborator with a focus on clean code, attention to detail, and effective communication. Committed to continuous learning and staying current with modern web technologies.",
+  about: "Frontend Software Engineer with 3+ years of experience in building and maintaining responsive web applications using Angular. Skilled in developing scalable, high-performance user interfaces. Strong collaborator with a focus on clean code, attention to detail, and effective communication. Committed to continuous learning and staying current with modern web technologies.",
   experience: [
+    {
+      company: "Bytrix Hub",
+      location: "Dubai",
+      role: "Lead Software Engineer",
+      technologies: ["Angular 22", "React, Projet Deployment", "Bootstrap", "Github", "TypeScript"]
+    },
     {
       company: "VAAS Intelligent Technology Solutions",
       location: "Kochi",
-      role: "Internship",
+      role: "Software Engineer",
       technologies: ["Angular 18", "PrimeFlex", "PrimeNG", "RXJS", "Bootstrap", "Github", "API Integration"]
     },
     {
       company: "AmruthaShala",
       location: "Hyderabad",
-      role: "Angular Developer",
+      role: "Frontend Developer",
       technologies: ["Angular 15", "Angular Material", "SCSS", "Bootstrap", "Slack", "API Integration"]
     },
     {
       company: "Luminar",
       location: "Kozhikode",
-      role: "MEAN Stack Intern",
+      role: "MEARN Stack Intern",
       technologies: ["Angular", "Node.js", "Express.js", "Bootstrap", "Angular Material", "MongoDB"]
     }
   ],
@@ -56,19 +62,58 @@ export const portfolioData = {
   ],
   skills: {
     technical: [
-      "Angular", "HTML", "CSS", "JavaScript", "TypeScript",
-      "Node.js", "NestJS", "React", "PostgreSQL", "MongoDB",
-      "PrimeNG", "TailwindCSS", "Bootstrap", "Git", "GitHub", "Bitbucket"
+      "Angular",
+      "React",
+      "JavaScript",
+      "TypeScript",
+      "HTML5",
+      "CSS3",
+      "Tailwind CSS",
+      "Bootstrap",
+      "Node.js",
+      "NestJS",
+      "REST API Development",
+      "PostgreSQL",
+      "MongoDB",
+      "Responsive Web Design",
+      "UI/UX Development",
+      "PrimeNG",
+      "Git",
+      "GitHub",
+      "Bitbucket"
     ],
+
     tools: [
-      "Jira", "Slack", "Postman", "Swagger", "Figma", "Adobe XD", "Adobe Photoshop"
+      "VS Code",
+      "Postman",
+      "Swagger",
+      "Figma",
+      "Adobe XD",
+      "Adobe Photoshop",
+      "Jira",
+      "Slack",
+      "Trello",
+      "Chrome DevTools",
+      "npm",
+      "Vite"
     ],
+
     soft_skills: [
-      "Effective communication", "Problem-solving", "Creative thinking",
-      "Team Collaboration", "Leadership quality", "Time management",
-      "Attention to Details", "Quickly adapt and learn new technologies"
+      "Effective Communication",
+      "Problem Solving",
+      "Creative Thinking",
+      "Team Collaboration",
+      "Leadership",
+      "Time Management",
+      "Attention to Detail",
+      "Adaptability",
+      "Fast Learner",
+      "Client Handling",
+      "Project Coordination",
+      "Decision Making"
     ]
   },
+
   languages: ["English", "Malayalam", "Tamil", "Hindi"],
   projects: [
     {
@@ -143,8 +188,8 @@ export const portfolioData = {
     "Active participation as a NSS volunteer"
   ],
   contact: {
-    phone: "+91 9645937117",
-    email: "ashikch7117@gmail.com",
-    address: "Kannur, Kerala - 670693"
+    phone: "+971557935653",
+    email: "ashik@ashikch.com",
+    address: "BurDubai, Dubai -UAE"
   }
 };

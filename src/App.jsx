@@ -24,8 +24,8 @@ function App() {
           <DemoOne />
           {/* <Hero /> */}
           <About />
-          <Skills />
           <Projects />
+          <Skills />
           <Experience />
           <Testimonials />
           <Contact />

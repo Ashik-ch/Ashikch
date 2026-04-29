@@ -14,14 +14,14 @@ const socialLinks = [
 export default function Contact() {
 
   return (
-    <section id="contact" className="py-32 relative bg-gray-900 text-white overflow-hidden mt-32 rounded-t-[3rem]">
+    <section id="contact" className="py-12 relative bg-gray-900 text-white overflow-hidden mt-32 rounded-t-[3rem]">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-48 bg-blue-500/20 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          
+
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -29,7 +29,7 @@ export default function Contact() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-4xl md:text-6xl font-heading font-bold mb-6">
-              Let's Build Something <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Amazing</span>
+              Let's Build Something <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Amazing</span>
             </h2>
             <p className="text-gray-400 text-lg mb-12 max-w-md">
               I'm always open to discussing product design work or partnership opportunities. Let's create something extraordinary together.
@@ -45,7 +45,7 @@ export default function Contact() {
                   <a href={`mailto:${contact.email}`} className="font-medium hover:text-blue-400 transition-colors">{contact.email}</a>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4 text-gray-300">
                 <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                   <MapPin size={20} className="text-blue-400" />
@@ -60,9 +60,9 @@ export default function Contact() {
             {/* Social Icons */}
             <div className="flex gap-4">
               {socialLinks.map(({ icon: Icon, url }, i) => (
-                <a 
-                  key={i} 
-                  href={url} 
+                <a
+                  key={i}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-300 interactive"
@@ -84,16 +84,16 @@ export default function Contact() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-400 ml-1">First Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive"
                     placeholder="John"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-400 ml-1">Last Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive"
                     placeholder="Doe"
                   />
@@ -102,8 +102,8 @@ export default function Contact() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-400 ml-1">Email</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive"
                   placeholder="john@example.com"
                 />
@@ -111,14 +111,14 @@ export default function Contact() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-400 ml-1">Message</label>
-                <textarea 
+                <textarea
                   rows={4}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive resize-none"
                   placeholder="Tell me about your project..."
                 />
               </div>
 
-              <button 
+              <button
                 type="button"
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-4 rounded-xl flex items-center justify-center gap-2 transition-colors interactive group"
               >

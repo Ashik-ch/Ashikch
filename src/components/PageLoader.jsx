@@ -1,9 +1,21 @@
+import { useMemo } from "react";
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 export default function PageLoader({ onComplete }) {
   const [progress, setProgress] = useState(0);
 
+  const loadingTitles = [
+    "LOADING PORTFOLIO...",
+    "PREPARING EXPERIENCE...",
+    "INITIALIZING...",
+    "OPENING PORTFOLIO...",
+    "GETTING THINGS READY...",
+    "WELCOME TO ASHIK.CH",
+    "PREPARING MY WORKSPACE...",
+    "LOADING MY JOURNEY...",
+    "BUILDING FIRST IMPRESSION..."
+  ];
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prev) => {
@@ -18,6 +30,10 @@ export default function PageLoader({ onComplete }) {
 
     return () => clearInterval(timer);
   }, [onComplete]);
+
+  const randomTitle = useMemo(() => {
+    return loadingTitles[Math.floor(Math.random() * loadingTitles.length)];
+  }, []);
 
   return (
     <motion.div
@@ -34,12 +50,12 @@ export default function PageLoader({ onComplete }) {
           transition={{ ease: 'linear', duration: 0.1 }}
         />
       </div>
-      <motion.div 
+      <motion.div
         className="mt-6 text-2xl font-heading font-light tracking-widest text-gray-800"
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       >
-        INITIALIZING
+        {randomTitle}
       </motion.div>
       <div className="absolute bottom-10 right-10 text-sm font-mono text-gray-400">
         {Math.min(progress, 100)}%

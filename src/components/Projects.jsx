@@ -104,7 +104,10 @@ export default function Projects() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-gray-900 mb-4">
-            Featured Work
+            Featured {''}
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+              Work
+            </span>
           </h2>
           <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full mb-10" />
         </motion.div>
