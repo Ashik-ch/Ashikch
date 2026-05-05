@@ -1,3 +1,11 @@
+import img1 from '../assets/1.png';
+import img2 from '../assets/2.png';
+import img3 from '../assets/3.png';
+import img4 from '../assets/4.png';
+import img5 from '../assets/5.png';
+import img6 from '../assets/6.png';
+import img7 from '../assets/7.png';
+
 export const portfolioData = {
   personal_info: {
     name: "Ashik C H",
@@ -120,65 +128,65 @@ export const portfolioData = {
       name: "Restaurant Management ERP - Eat and Drink",
       company: "VAAS Intelligent Technology Solutions",
       duration: "Sep 2023 – Mar 2025",
-      description: "Developed and maintained a restaurant management ERP system with modules for product management, reporting, and financial tracking. Integrated warehouse management for purchase orders and material transfers.",
+      description: "Developed and maintained a restaurant management ERP system with features like product management, reports, dashboards, and financial tracking. Implemented role-based access control and warehouse management for purchase orders and material transfers. Followed Scrum methodologies, participating in sprint planning and daily standups to enhance project efficiency.",
       technologies: ["Angular 18", "PrimeFlex", "PrimeNG", "Github", "PM Tool", "Swagger"],
-      link: "https://erp.eatanddrink.ae/"
+      link: "https://erp.eatanddrink.ae/",
+      img: img1
     },
     {
       name: "Loan Management App – Thazhayil Finance",
       company: "VAAS Intelligent Technology Solutions",
       duration: "Sep 2023 – Dec 2024",
-      description: "Built an intuitive loan management interface using Angular Material. Enabled loan creation, application, and admin-side status tracking for over 500+ loan accounts.",
+      description: "The Thazhayil Loan App streamlines loan management with an intuitive Angular Material interface. Users can access loan details, apply for new loans, and track status, while the admin side ensures secure management with real-time updates.",
       technologies: ["Angular 18", "Angular Material", "Bitbucket", "Source Tree"],
-      link: "http://loandashboard.vaas.tech/"
+      link: "http://loandashboard.vaas.tech/",
+      img: img2
+
     },
     {
       name: "Consumer Loan Website – Thazhayil Finance",
       company: "VAAS Intelligent Technology Solutions",
       duration: "Jan 2025 – Mar 2025",
-      description: "Developed a consumer loan platform for users to manage loan creation, status tracking, and account management. Streamlined loan verification and approval processes through a secure admin panel.",
+      description: "Developed a loan app for Thazhayil Finance, allowing users to apply, track status, and manage accounts, while the admin panel streamlines verification and approvals for better efficiency.",
       technologies: ["Angular 18", "Angular Material", "Bitbucket", "Source Tree"],
-      link: "https://www.thazhayilfinance.com/"
+      link: "https://www.thazhayilfinance.com/",
+      img: img3
     },
     {
       name: "Food Ordering & Delivery App - Amruthashala",
       company: "Amruthashala Private Ltd",
       duration: "May 2023 – Sep 2023",
-      description: "Designed and developed a responsive food ordering app with real-time order tracking. Implemented personalized meal plans and secure payment processing.",
+      description: "Developed an app for streamlined food ordering, delivery logistics, and meal planning tailored to customer preferences. Included real-time order tracking, personalized meal options, and secure payment processing.",
       technologies: ["Angular 16", "TailwindCSS", "Slack", "Jira", "Git"],
-      link: "https://www.thazhayilfinance.com/"
-    },
-    {
-      name: "The Hiring Hub",
-      company: "Internship Project",
-      duration: "2023",
-      description: "Web app for people searching for part-time jobs and for hiring. Companies can add jobs and hire people while job seekers can apply.",
-      technologies: ["Angular", "Node.js", "Express.js", "MongoDB"],
-      link: "https://docs.google.com/document/d/1mTG6dANT36FB9yZxrNXK8guzXNnpAkjb/edit#heading=h.gjdgxs"
-    },
-    {
-      name: "Portfolio Website",
-      company: "Personal",
-      duration: "2022",
-      description: "Personal website containing Resume, Education, Experience, Project details, Skills, and Contact details with dark and light mode. Hosted on GitHub.",
-      technologies: ["Angular", "HTML", "CSS", "TailwindCSS"],
-      link: "https://ashik-ch.github.io/Ashik-CH/"
-    },
-    {
-      name: "Personal Website (Static)",
-      company: "Personal",
-      duration: "2022",
-      description: "Personal website using HTML5, CSS3, Bootstrap, JavaScript. Hosted on GitHub. Contains resume, expertise, projects, and skills. Responsive static website.",
-      technologies: ["HTML5", "CSS3", "Bootstrap", "JavaScript", "Github"],
-      link: "https://ashik-ch.github.io/ashik.ch"
+      link: "https://www.thazhayilfinance.com/",
+      img: img4
     },
     {
       name: "Mindroid'20 – College Magazine",
       company: "NAM College",
       duration: "2019-2020",
-      description: "Computer science departmental magazine of NAM College Kallikandy. Created during COVID-19 lockdown. Included Malayalam and English articles, poems, stories, experience notes, tech articles, and reports.",
+      description: "Computer science departmental magazine of NAM College Kallikandy that was published by the Principal containing tech and related content. The magazine was created during the COVID-19 lockdown. It includes Malayalam and English articles, poems, stories, experience notes, tech articles, and reports.",
       technologies: ["Adobe Photoshop"],
-      link: "https://online.fliphtml5.com/mrinn/acjm/#p=1"
+      link: "https://online.fliphtml5.com/mrinn/acjm/#p=1",
+      img: img5
+    },
+    {
+      name: "Zain Tea Cafe Website",
+      company: "Zain Tea Cafe",
+      duration: "2024",
+      description: "Official website developed for Zain Tea Cafe showcasing menu, brand identity, and customer engagement features. The project focuses on a modern UI/UX experience, mobile responsiveness, and performance optimization to attract and retain customers. Includes sections for menu display, contact details, and online presence integration.",
+      technologies: ["React", "Tailwind CSS", "JavaScript"],
+      link: "https://zaintacafe.com",
+      img: img6
+    },
+    {
+      name: "IDT Travel Website",
+      company: "GoIDT",
+      duration: "2024",
+      description: "Travel website developed for Goidt, designed to help users explore destinations and plan trips بسهولة. The platform features a clean, responsive UI with sections for travel packages, destination highlights, and easy navigation. Built with a focus on performance and user experience to enhance online booking and customer engagement.",
+      technologies: ["React", "JavaScript", "Tailwind CSS"],
+      link: "https://goidt.in/",
+      img: img7
     }
   ],
   activities: [

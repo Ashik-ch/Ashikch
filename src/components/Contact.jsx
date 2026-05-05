@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Mail, MapPin, Send, Code, Globe, MessageCircle } from 'lucide-react';
 
 import { portfolioData } from '../data/portfolioData';
+import packageJson from '../../package.json';
 
 const { contact, personal_info } = portfolioData;
 
@@ -132,7 +133,10 @@ export default function Contact() {
 
         {/* Footer */}
         <div className="mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 pb-8">
-          <div>© {new Date().getFullYear()} {personal_info.name}. All rights reserved.</div>
+          <div className="flex items-center gap-2">
+            <span>© {new Date().getFullYear()} {personal_info.name}. All rights reserved.</span>
+            <span className="text-gray-600 text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/5">v{packageJson.version}</span>
+          </div>
           <div className="flex gap-6">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>

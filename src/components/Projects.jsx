@@ -3,15 +3,6 @@ import { ExternalLink } from "lucide-react";
 import { useRef, useState, useCallback } from "react";
 import { portfolioData } from "../data/portfolioData";
 
-/* ---------------- IMAGES ---------------- */
-const defaultImages = [
-  "https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80",
-];
 
 function TiltCard({
   children,
@@ -127,7 +118,7 @@ export default function Projects() {
                   <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-[0_25px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
                     {/* Image */}
                     <img
-                      src={defaultImages[index % defaultImages.length]}
+                      src={project.img}
                       alt={project.name}
                       className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110"
                     />
