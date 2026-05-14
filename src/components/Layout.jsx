@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import CustomCursor from './CustomCursor';
 import Navbar from './Navbar';
 

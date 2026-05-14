@@ -1,21 +1,24 @@
-import { useMemo } from "react";
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 export default function PageLoader({ onComplete }) {
   const [progress, setProgress] = useState(0);
 
-  const loadingTitles = [
-    "LOADING PORTFOLIO...",
-    "PREPARING EXPERIENCE...",
-    "INITIALIZING...",
-    "OPENING PORTFOLIO...",
-    "GETTING THINGS READY...",
-    "WELCOME TO ASHIK.CH",
-    "PREPARING MY WORKSPACE...",
-    "LOADING MY JOURNEY...",
-    "BUILDING FIRST IMPRESSION..."
-  ];
+  const [randomTitle] = useState(() => {
+    const titles = [
+      "LOADING PORTFOLIO...",
+      "PREPARING EXPERIENCE...",
+      "INITIALIZING...",
+      "OPENING PORTFOLIO...",
+      "GETTING THINGS READY...",
+      "WELCOME TO ASHIK.CH",
+      "PREPARING MY WORKSPACE...",
+      "LOADING MY JOURNEY...",
+      "BUILDING FIRST IMPRESSION..."
+    ];
+    return titles[Math.floor(Math.random() * titles.length)];
+  });
+
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prev) => {
@@ -30,10 +33,6 @@ export default function PageLoader({ onComplete }) {
 
     return () => clearInterval(timer);
   }, [onComplete]);
-
-  const randomTitle = useMemo(() => {
-    return loadingTitles[Math.floor(Math.random() * loadingTitles.length)];
-  }, []);
 
   return (
     <motion.div
