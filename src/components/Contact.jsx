@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Send, Code, Globe, MessageCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import emailjs from '@emailjs/browser';
 
 import { portfolioData } from '../data/portfolioData';
 import packageJson from '../../package.json';
@@ -13,6 +15,38 @@ const socialLinks = [
 ];
 
 export default function Contact() {
+  const formRef = useRef();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    // TODO: Replace these placeholders with your actual EmailJS credentials
+    emailjs
+      .sendForm(
+        'service_nwajipe',
+        'template_vwolapz',
+        formRef.current,
+        'bFxYIjfbTqPmy2Zvc'
+      )
+      .then(
+        () => {
+          setIsSubmitting(false);
+          setSubmitStatus('success');
+          formRef.current.reset();
+          setTimeout(() => setSubmitStatus(null), 5000);
+        },
+        (error) => {
+          setIsSubmitting(false);
+          setSubmitStatus('error');
+          console.error('FAILED...', error.text);
+          setTimeout(() => setSubmitStatus(null), 5000);
+        }
+      );
+  };
 
   return (
     <section id="contact" className="py-12 relative bg-gray-900 text-white overflow-hidden mt-32 rounded-t-[3rem]">
@@ -81,12 +115,14 @@ export default function Contact() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl"
           >
-            <form className="space-y-6">
+            <form ref={formRef} onSubmit={sendEmail} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-400 ml-1">First Name</label>
                   <input
                     type="text"
+                    name="user_firstname"
+                    required
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive"
                     placeholder="John"
                   />
@@ -95,6 +131,8 @@ export default function Contact() {
                   <label className="text-sm font-medium text-gray-400 ml-1">Last Name</label>
                   <input
                     type="text"
+                    name="user_lastname"
+                    required
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive"
                     placeholder="Doe"
                   />
@@ -105,6 +143,8 @@ export default function Contact() {
                 <label className="text-sm font-medium text-gray-400 ml-1">Email</label>
                 <input
                   type="email"
+                  name="user_email"
+                  required
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive"
                   placeholder="john@example.com"
                 />
@@ -113,6 +153,8 @@ export default function Contact() {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-400 ml-1">Message</label>
                 <textarea
+                  name="message"
+                  required
                   rows={4}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all interactive resize-none"
                   placeholder="Tell me about your project..."
@@ -120,12 +162,24 @@ export default function Contact() {
               </div>
 
               <button
-                type="button"
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-4 rounded-xl flex items-center justify-center gap-2 transition-colors interactive group"
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full ${isSubmitting ? 'bg-blue-600/50 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 interactive'} text-white font-medium py-4 rounded-xl flex items-center justify-center gap-2 transition-colors group`}
               >
-                Send Message
-                <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                {isSubmitting ? 'Sending...' : 'Send Message'}
+                {!isSubmitting && <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
               </button>
+
+              {submitStatus === 'success' && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-green-400 text-sm text-center mt-4">
+                  Message sent successfully! I'll get back to you soon.
+                </motion.p>
+              )}
+              {submitStatus === 'error' && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-sm text-center mt-4">
+                  Failed to send message. Please check your connection and try again.
+                </motion.p>
+              )}
             </form>
           </motion.div>
 

@@ -13,6 +13,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@paper-design/shaders-react": "^0.0.76",
     "@tailwindcss/vite": "^4.2.4",
     "clsx": "^2.1.1",

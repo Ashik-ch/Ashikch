@@ -6,9 +6,9 @@ export default function Layout({ children }) {
   return (
     <div className="relative min-h-screen bg-grid-pattern selection:bg-blue-600/30 selection:text-blue-900">
       {/* Custom Cursor (Hidden on mobile via CSS usually, but we handle it via pointer-events) */}
-      <div className="hidden md:block">
+      {/* <div className="hidden md:block">
         <CustomCursor />
-      </div>
+      </div> */}
 
       {/* Ambient background glows */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
