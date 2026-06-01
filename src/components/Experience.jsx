@@ -33,26 +33,24 @@ export default function Experience() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                className={`flex flex-col md:flex-row gap-8 ${
-                  index % 2 === 0 ? 'md:flex-row-reverse' : ''
-                }`}
+                className={`flex flex-col md:flex-row gap-8 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''
+                  }`}
               >
                 {/* Timeline Dot */}
                 <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 mt-8 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow shadow-blue-600/50 hidden md:block" />
 
                 <div className="md:w-1/2" />
-                
                 <div className="md:w-1/2 relative group">
-                  <div className={`glass-card p-8 rounded-3xl transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl ${
-                    index % 2 === 0 ? 'md:mr-8' : 'md:ml-8'
-                  }`}>
-                    <div className="text-blue-600 font-mono text-sm font-bold mb-2">{exp.period}</div>
-                    <h3 className="text-2xl font-heading font-bold text-gray-900 mb-1">{exp.role}</h3>
-                    <div className="text-gray-600 font-medium mb-4 flex justify-between items-center">
-                      <span>{exp.company}</span>
-                      <span className="text-sm opacity-70 bg-gray-100 px-2 py-1 rounded-md">{exp.location}</span>
-                    </div>
-                    
+                  <div className={`glass-card p-8 rounded-3xl transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl ${index % 2 === 0 ? 'md:mr-8' : 'md:ml-8'
+                    }`}>
+                    <a href={exp.link} target="_blank" rel="noopener noreferrer">
+                      <div className="text-blue-600 font-mono text-sm font-bold mb-2">{exp.period}</div>
+                      <h3 className="text-2xl font-heading font-bold text-gray-900 mb-1">{exp.role}</h3>
+                      <div className="text-gray-600 font-medium mb-4 flex justify-between items-center">
+                        <span>{exp.company}</span>
+                        <span className="text-sm opacity-70 bg-gray-100 px-2 py-1 rounded-md">{exp.location}</span>
+                      </div>
+                    </a>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {exp.technologies.map((tech, i) => (
                         <span key={i} className="px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-100 rounded-full shadow-sm">
@@ -67,6 +65,6 @@ export default function Experience() {
           </div>
         </div>
       </div>
-    </section>
+    </section >
   );
 }

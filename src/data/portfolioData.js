@@ -18,28 +18,32 @@ export const portfolioData = {
     github: "https://github.com/Ashik-ch",
     portfolio: "https://ashikch.com"
   },
-  about: "Frontend Software Engineer with 3+ years of experience in building and maintaining responsive web applications using Angular. Skilled in developing scalable, high-performance user interfaces. Strong collaborator with a focus on clean code, attention to detail, and effective communication. Committed to continuous learning and staying current with modern web technologies.",
+  about: "Software Engineer with 3+ years of experience in building and maintaining responsive web applications using Angular. Skilled in developing scalable, high-performance user interfaces. Strong collaborator with a focus on clean code, attention to detail, and effective communication. Committed to continuous learning and staying current with modern web technologies.",
   experience: [
     {
       company: "Bytrix Hub",
+      link: "https://www.bytrixhub.com/",
       location: "Dubai",
       role: "Lead Software Engineer",
       technologies: ["Angular 22", "React", "Projet Deployment", "Bootstrap", "Github", "TypeScript"]
     },
     {
       company: "VAAS Intelligent Technology Solutions",
+      link: "https://vaasits.com/",
       location: "Kochi",
       role: "Software Engineer",
       technologies: ["Angular 18", "PrimeFlex", "PrimeNG", "RXJS", "Bootstrap", "Github", "API Integration"]
     },
     {
       company: "AmruthaShala",
+      link: "https://www.amruthashala.com/",
       location: "Hyderabad",
       role: "Frontend Developer",
       technologies: ["Angular 15", "Angular Material", "SCSS", "Bootstrap", "Slack", "API Integration"]
     },
     {
       company: "Luminar",
+      link: "https://luminartechnolab.com/",
       location: "Kozhikode",
       role: "MEARN Stack Intern",
       technologies: ["Angular", "Node.js", "Express.js", "Bootstrap", "Angular Material", "MongoDB"]
