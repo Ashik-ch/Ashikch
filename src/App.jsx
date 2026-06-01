@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import PageLoader from './components/PageLoader';
 import Layout from './components/Layout';
@@ -13,10 +13,14 @@ import Contact from './components/Contact';
 function App() {
   const [loading, setLoading] = useState(true);
 
+  const handleLoadingComplete = useCallback(() => {
+    setLoading(false);
+  }, []);
+
   return (
     <>
       <AnimatePresence mode="wait">
-        {loading && <PageLoader key="loader" onComplete={() => setLoading(false)} />}
+        {loading && <PageLoader key="loader" onComplete={handleLoadingComplete} />}
       </AnimatePresence>
 
       {!loading && (

@@ -56,27 +56,30 @@ const StaticSvgDefs = () => (
       </filter>
     </defs>
   </svg>
-);
+);// Lift static configurations outside the rendering path to avoid referential updates and WebGL re-initialization
+const MESH_GRADIENT_COLORS = ["#000000", "#ffffff", "#06b6d4", "#0891b2", "#f97316"];
+const MESH_GRADIENT_STYLE = { backgroundColor: "#000000" };
+
+const PULSING_BORDER_COLORS = ["#06b6d4", "#8b5cf6", "#ffffff", "#00FF88", "#FFD700"];
+const PULSING_BORDER_STYLE = {
+  width: "60px",
+  height: "60px",
+  borderRadius: "50%",
+};
+
+const TITLES = portfolioData.personal_info.title.split('|').map(t => t.trim());
 
 export default function ShaderShowcase() {
-  const titles = portfolioData.personal_info.title.split('|').map(t => t.trim());
-
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div id="home" className="min-h-screen bg-black relative overflow-hidden">
       <StaticSvgDefs />
 
+      {/* Unified, high-performance WebGL Mesh Gradient. Overlapping multiple gradients removed to prevent overdraw and excessive GPU load. */}
       <MeshGradient
         className="absolute inset-0 w-full h-full"
-        colors={["#000000", "#06b6d4", "#0891b2", "#164e63", "#f97316"]}
-        speed={0.3}
-        style={{ backgroundColor: "#000000" }}
-      />
-
-      <MeshGradient
-        className="absolute inset-0 w-full h-full opacity-60"
-        colors={["#000000", "#ffffff", "#06b6d4", "#f97316"]}
-        speed={0.2}
-        style={{ backgroundColor: "transparent" }}
+        colors={MESH_GRADIENT_COLORS}
+        speed={0.25}
+        style={MESH_GRADIENT_STYLE}
       />
 
       {/* Hero Content */}
@@ -91,7 +94,7 @@ export default function ShaderShowcase() {
           >
             <Typewriter
               options={{
-                strings: titles,
+                strings: TITLES,
                 autoStart: true,
                 loop: true,
                 delay: 50,
@@ -168,13 +171,7 @@ export default function ShaderShowcase() {
       <div className="absolute bottom-8 right-8 z-30">
         <div className="relative w-20 h-20 flex items-center justify-center">
           <PulsingBorder
-            colors={[
-              "#06b6d4",
-              "#8b5cf6",
-              "#ffffff",
-              "#00FF88",
-              "#FFD700",
-            ]}
+            colors={PULSING_BORDER_COLORS}
             colorBack="#00000000"
             speed={1.5}
             roundness={1}
@@ -188,36 +185,10 @@ export default function ShaderShowcase() {
             smokeSize={4}
             scale={0.65}
             rotation={0}
-            style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "50%",
-            }}
+            style={PULSING_BORDER_STYLE}
           />
-
-          {/* <motion.svg
-            className="absolute inset-0 w-full h-full"
-            viewBox="0 0 100 100"
-            animate={{ rotate: 360 }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-            style={{ transform: "scale(1.6)" }}
-          >
-            <defs>
-              <path id="circle" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
-            </defs>
-
-            <text className="text-sm fill-white/80 font-medium">
-              <textPath href="#circle">
-                React • Next.js • UI Design • Framer Motion • Creative Code •
-              </textPath>
-            </text>
-          </motion.svg> */}
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -20,18 +20,22 @@ export default function PageLoader({ onComplete }) {
   });
 
   useEffect(() => {
+    let timeoutId;
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => onComplete(), 500);
+          timeoutId = setTimeout(() => onComplete(), 500);
           return 100;
         }
         return prev + Math.floor(Math.random() * 10) + 5;
       });
     }, 100);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [onComplete]);
 
   return (
