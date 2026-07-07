@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const icons=require\\('lucide-react'\\); ['Circle','CheckCircle2','Bell','BellOff','BellRing','Clock','AlarmClock','Pencil','Edit2','Edit3','Filter','ChevronDown','X','Plus','Trash2','ArrowLeft','AlertCircle','AlertTriangle','ListTodo','Flag','CalendarClock','Calendar'].forEach\\(n=>console.log\\(n, typeof icons[n]\\)\\)\")"
+    ]
+  }
+}
