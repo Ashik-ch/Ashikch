@@ -12,7 +12,6 @@ import {
 import { auth, db } from '../lib/firebase';
 import { generateSaltBase64, deriveVaultKey, encryptString, decryptString } from '../lib/vaultCrypto';
 
-const TASKS_KEY = 'tasks_app_data_v1';
 const NOTIFY_KEY = 'tasks_app_notify_v1';
 const NOTIFIED_KEY = 'tasks_app_notified_v1';
 const LAST_EMAIL_KEY = 'vault_last_email';
@@ -24,15 +23,6 @@ const PRIORITY = {
 };
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-
-function loadTasks() {
-  try {
-    const saved = localStorage.getItem(TASKS_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-}
 
 function getDueStatus(task) {
   if (task.completed) return 'done';
@@ -193,10 +183,11 @@ function VaultLogin({ onUnlock }) {
 }
 
 // ------------------------------------------------------------------
-// Tasks tab — unchanged behavior, still local-only (localStorage).
+// Tasks tab — synced to Firestore under users/{uid}/tasks.
 // ------------------------------------------------------------------
-function TasksTab() {
-  const [tasks, setTasks] = useState(loadTasks);
+function TasksTab({ user }) {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('active'); // 'all' | 'active' | 'completed'
   const [sortBy, setSortBy] = useState('deadline'); // 'deadline' | 'priority' | 'created'
   const [notifyEnabled, setNotifyEnabled] = useState(() => localStorage.getItem(NOTIFY_KEY) === 'true');
@@ -207,8 +198,13 @@ function TasksTab() {
   const notifiedRef = useRef(new Set(JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '[]')));
 
   useEffect(() => {
-    localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
-  }, [tasks]);
+    const q = query(collection(db, 'users', user.uid, 'tasks'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      setTasks(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    }, () => setLoading(false));
+    return () => unsub();
+  }, [user.uid]);
 
   useEffect(() => {
     const check = () => {
@@ -268,37 +264,37 @@ function TasksTab() {
     setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const title = form.title.trim();
     if (!title) return;
 
     if (editingId) {
-      setTasks(prev => prev.map(t => t.id === editingId ? { ...t, title, dueDate: form.dueDate || null, priority: form.priority, notes: form.notes.trim() } : t));
+      await updateDoc(doc(db, 'users', user.uid, 'tasks', editingId), {
+        title, dueDate: form.dueDate || null, priority: form.priority, notes: form.notes.trim(),
+      });
       notifiedRef.current.delete(editingId);
     } else {
-      const newTask = {
-        id: uid(),
+      await addDoc(collection(db, 'users', user.uid, 'tasks'), {
         title,
         dueDate: form.dueDate || null,
         priority: form.priority,
         notes: form.notes.trim(),
         completed: false,
         createdAt: Date.now(),
-      };
-      setTasks(prev => [newTask, ...prev]);
+      });
     }
     setShowForm(false);
     resetForm();
     setEditingId(null);
   };
 
-  const toggleComplete = (id) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const toggleComplete = async (task) => {
+    await updateDoc(doc(db, 'users', user.uid, 'tasks', task.id), { completed: !task.completed });
   };
 
-  const deleteTask = (id) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+  const deleteTask = async (id) => {
+    await deleteDoc(doc(db, 'users', user.uid, 'tasks', id));
   };
 
   const filteredTasks = useMemo(() => {
@@ -371,6 +367,11 @@ function TasksTab() {
       </div>
 
       <div className="flex-1 px-4 sm:px-6 py-4 space-y-2.5 max-w-2xl w-full mx-auto pb-28">
+        {loading && (
+          <div className="flex justify-center py-16 text-gray-500">
+            <LoaderCircle size={22} className="animate-spin" />
+          </div>
+        )}
         <AnimatePresence initial={false}>
           {filteredTasks.map(task => {
             const status = getDueStatus(task);
@@ -386,7 +387,7 @@ function TasksTab() {
                 className={`bg-white/[0.03] border rounded-2xl p-3.5 flex items-start gap-3 ${status === 'overdue' && !task.completed ? 'border-red-500/30' : 'border-white/5'}`}
               >
                 <button
-                  onClick={() => toggleComplete(task.id)}
+                  onClick={() => toggleComplete(task)}
                   className={`mt-0.5 shrink-0 ${task.completed ? 'text-emerald-400' : 'text-gray-500 hover:text-white'}`}
                 >
                   {task.completed ? <Check size={20} /> : <Circle size={20} />}
@@ -428,7 +429,7 @@ function TasksTab() {
           })}
         </AnimatePresence>
 
-        {filteredTasks.length === 0 && (
+        {!loading && filteredTasks.length === 0 && (
           <div className="text-center py-16 text-gray-500">
             <ListTodo size={32} className="mx-auto mb-3 opacity-40" />
             <p className="text-sm">No {filter !== 'all' ? filter : ''} tasks yet</p>
@@ -953,7 +954,7 @@ export default function TaskManager({ onBack }) {
         </div>
       </div>
 
-      {activeTab === 'tasks' ? <TasksTab /> : <CredsTab user={user} vaultKey={vaultKey} />}
+      {activeTab === 'tasks' ? <TasksTab user={user} /> : <CredsTab user={user} vaultKey={vaultKey} />}
     </div>
   );
 }
