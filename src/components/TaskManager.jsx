@@ -2,12 +2,20 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Plus, X, Check, Circle, Trash2, Pencil, Bell, BellOff,
-  AlarmClock, Flag, AlertTriangle, ListTodo
+  AlarmClock, Flag, AlertTriangle, ListTodo, Lock, KeyRound, Eye, EyeOff,
+  Copy, Globe, LoaderCircle, ShieldCheck, Search
 } from 'lucide-react';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import {
+  collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, orderBy, query
+} from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
+import { generateSaltBase64, deriveVaultKey, encryptString, decryptString } from '../lib/vaultCrypto';
 
 const TASKS_KEY = 'tasks_app_data_v1';
 const NOTIFY_KEY = 'tasks_app_notify_v1';
 const NOTIFIED_KEY = 'tasks_app_notified_v1';
+const LAST_EMAIL_KEY = 'vault_last_email';
 
 const PRIORITY = {
   high: { label: 'High', order: 3, dot: 'bg-red-400', text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30' },
@@ -49,7 +57,145 @@ function formatDue(dueDate) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + `, ${time}`;
 }
 
-export default function TaskManager({ onBack }) {
+function mapAuthError(err) {
+  const code = err?.code || '';
+  console.error('[Vault] sign-in error:', code, err?.message);
+
+  if (code.startsWith('auth/')) {
+    if (code.includes('configuration-not-found') || code.includes('operation-not-allowed')) {
+      return 'Email/Password sign-in is not enabled yet in Firebase Console (Authentication → Sign-in method).';
+    }
+    if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) {
+      return 'Incorrect email or password.';
+    }
+    if (code.includes('too-many-requests')) return 'Too many attempts. Try again later.';
+    if (code.includes('invalid-email')) return 'Enter a valid email address.';
+    if (code.includes('network-request-failed')) return 'Network error — check your connection.';
+    return `Sign-in failed (${code}).`;
+  }
+
+  if (code === 'permission-denied' || code.includes('permission-denied')) {
+    return 'Signed in, but Firestore is blocking access. Publish the security rules (Firestore Database → Rules) and make sure the database exists.';
+  }
+  if (code === 'unavailable' || code.includes('unavailable')) {
+    return 'Could not reach Firestore. Make sure a Firestore database has been created for this project.';
+  }
+  if (code === 'not-found') {
+    return 'Firestore database not found for this project. Create one in Firebase Console → Firestore Database.';
+  }
+
+  return `Sign-in failed: ${code || err?.message || 'unknown error'}.`;
+}
+
+// ------------------------------------------------------------------
+// Login gate — every visit to this page requires the vault password.
+// Firebase Auth confirms identity; the same password also derives the
+// AES key used to decrypt saved credentials (never stored anywhere).
+// ------------------------------------------------------------------
+function VaultLogin({ onUnlock }) {
+  const [email, setEmail] = useState(() => localStorage.getItem(LAST_EMAIL_KEY) || '');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const user = cred.user;
+      localStorage.setItem(LAST_EMAIL_KEY, email.trim());
+
+      const securityRef = doc(db, 'users', user.uid, 'meta', 'security');
+      const snap = await getDoc(securityRef);
+      let salt;
+      if (snap.exists()) {
+        salt = snap.data().salt;
+      } else {
+        salt = generateSaltBase64();
+        await setDoc(securityRef, { salt, createdAt: Date.now() });
+      }
+      const key = await deriveVaultKey(password, salt);
+      onUnlock(user, key);
+    } catch (err) {
+      setError(mapAuthError(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#08070d] text-white flex items-center justify-center p-6 font-sans relative overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-10%] left-[-15%] w-[50%] h-[40%] rounded-full bg-blue-500/10 blur-[130px]" />
+        <div className="absolute bottom-[-10%] right-[-15%] w-[45%] h-[40%] rounded-full bg-purple-500/10 blur-[130px]" />
+      </div>
+
+      <div className="w-full max-w-sm bg-white/[0.03] border border-white/10 rounded-3xl p-6 space-y-5">
+        <div className="text-center space-y-1">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-2">
+            <Lock size={20} />
+          </div>
+          <h1 className="font-heading font-bold text-lg">Private Space</h1>
+          <p className="text-xs text-gray-400">Sign in to access Tasks &amp; saved Creds</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1">
+            <label className="text-[10px] font-semibold text-gray-500 uppercase">Email</label>
+            <input
+              type="email"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-semibold text-gray-500 uppercase">Password</label>
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+              >
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {busy ? <LoaderCircle size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
+            {busy ? 'Signing in...' : 'Unlock'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------
+// Tasks tab — unchanged behavior, still local-only (localStorage).
+// ------------------------------------------------------------------
+function TasksTab() {
   const [tasks, setTasks] = useState(loadTasks);
   const [filter, setFilter] = useState('active'); // 'all' | 'active' | 'completed'
   const [sortBy, setSortBy] = useState('deadline'); // 'deadline' | 'priority' | 'created'
@@ -60,12 +206,10 @@ export default function TaskManager({ onBack }) {
   const [form, setForm] = useState({ title: '', dueDate: '', priority: 'medium', notes: '' });
   const notifiedRef = useRef(new Set(JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '[]')));
 
-  // Persist tasks
   useEffect(() => {
     localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
   }, [tasks]);
 
-  // Deadline watcher: fires an alert once per task when its due time arrives
   useEffect(() => {
     const check = () => {
       const now = Date.now();
@@ -89,7 +233,6 @@ export default function TaskManager({ onBack }) {
     return () => clearInterval(interval);
   }, [tasks, notifyEnabled]);
 
-  // Auto-dismiss toasts
   useEffect(() => {
     if (toasts.length === 0) return;
     const timer = setTimeout(() => setToasts(prev => prev.slice(1)), 6000);
@@ -176,45 +319,11 @@ export default function TaskManager({ onBack }) {
     });
   }, [tasks, filter, sortBy]);
 
-  const activeCount = tasks.filter(t => !t.completed).length;
   const overdueCount = tasks.filter(t => getDueStatus(t) === 'overdue').length;
   const soonCount = tasks.filter(t => getDueStatus(t) === 'soon').length;
 
   return (
-    <div className="min-h-screen bg-[#08070d] text-white flex flex-col font-sans relative overflow-x-hidden">
-      {/* Ambient glow */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] left-[-15%] w-[50%] h-[40%] rounded-full bg-blue-500/10 blur-[130px]" />
-        <div className="absolute bottom-[-10%] right-[-15%] w-[45%] h-[40%] rounded-full bg-purple-500/10 blur-[130px]" />
-      </div>
-
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-black/60 backdrop-blur-md border-b border-white/5 py-4 px-4 sm:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <div>
-            <h1 className="text-lg font-heading font-bold flex items-center gap-2">
-              <ListTodo size={18} className="text-blue-400" /> Tasks
-            </h1>
-            <p className="text-[11px] text-gray-400">{activeCount} active{overdueCount > 0 ? ` · ${overdueCount} overdue` : ''}</p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleToggleNotify}
-          className={`p-2.5 rounded-xl border transition-colors ${notifyEnabled ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
-          title={notifyEnabled ? 'Deadline alerts on' : 'Deadline alerts off'}
-        >
-          {notifyEnabled ? <Bell size={16} /> : <BellOff size={16} />}
-        </button>
-      </header>
-
-      {/* Deadline alert banner */}
+    <>
       {(overdueCount > 0 || soonCount > 0) && (
         <div className="px-4 sm:px-6 pt-4">
           <div className="flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl px-3 py-2.5">
@@ -228,8 +337,7 @@ export default function TaskManager({ onBack }) {
         </div>
       )}
 
-      {/* Filters + Sort */}
-      <div className="px-4 sm:px-6 pt-4 flex items-center justify-between gap-3">
+      <div className="px-4 sm:px-6 pt-4 flex items-center justify-between gap-2">
         <div className="flex gap-1.5 bg-white/5 border border-white/10 rounded-xl p-1">
           {['active', 'all', 'completed'].map(f => (
             <button
@@ -242,18 +350,26 @@ export default function TaskManager({ onBack }) {
           ))}
         </div>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="bg-white/5 border border-white/10 rounded-xl px-2.5 py-2 text-xs text-gray-300 focus:outline-none"
-        >
-          <option value="deadline" className="bg-[#0d0c15]">By deadline</option>
-          <option value="priority" className="bg-[#0d0c15]">By priority</option>
-          <option value="created" className="bg-[#0d0c15]">Newest first</option>
-        </select>
+        <div className="flex items-center gap-2">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-white/5 border border-white/10 rounded-xl px-2.5 py-2 text-xs text-gray-300 focus:outline-none"
+          >
+            <option value="deadline" className="bg-[#0d0c15]">By deadline</option>
+            <option value="priority" className="bg-[#0d0c15]">By priority</option>
+            <option value="created" className="bg-[#0d0c15]">Newest first</option>
+          </select>
+          <button
+            onClick={handleToggleNotify}
+            className={`p-2.5 rounded-xl border transition-colors ${notifyEnabled ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
+            title={notifyEnabled ? 'Deadline alerts on' : 'Deadline alerts off'}
+          >
+            {notifyEnabled ? <Bell size={16} /> : <BellOff size={16} />}
+          </button>
+        </div>
       </div>
 
-      {/* Task list */}
       <div className="flex-1 px-4 sm:px-6 py-4 space-y-2.5 max-w-2xl w-full mx-auto pb-28">
         <AnimatePresence initial={false}>
           {filteredTasks.map(task => {
@@ -320,7 +436,6 @@ export default function TaskManager({ onBack }) {
         )}
       </div>
 
-      {/* Floating Add Button */}
       <button
         onClick={openAddForm}
         className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-600/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
@@ -328,7 +443,6 @@ export default function TaskManager({ onBack }) {
         <Plus size={24} />
       </button>
 
-      {/* Toast alerts */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm space-y-2">
         <AnimatePresence>
           {toasts.map(toast => (
@@ -349,7 +463,6 @@ export default function TaskManager({ onBack }) {
         </AnimatePresence>
       </div>
 
-      {/* Add/Edit Form — bottom sheet on mobile, centered modal on desktop */}
       <AnimatePresence>
         {showForm && (
           <>
@@ -436,6 +549,411 @@ export default function TaskManager({ onBack }) {
           </>
         )}
       </AnimatePresence>
+    </>
+  );
+}
+
+// ------------------------------------------------------------------
+// Creds tab — Chrome-style saved logins. Site/username are stored in
+// Firestore as-is; the password is AES-GCM encrypted client-side with
+// a key derived from the vault password, so it never reaches
+// Firestore (or the network) as plaintext.
+// ------------------------------------------------------------------
+function CredsTab({ user, vaultKey }) {
+  const [creds, setCreds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ site: '', username: '', password: '', notes: '' });
+  const [showFormPw, setShowFormPw] = useState(false);
+  const [revealedMap, setRevealedMap] = useState({});
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  useEffect(() => {
+    const q = query(collection(db, 'users', user.uid, 'creds'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      setCreds(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    }, () => setLoading(false));
+    return () => unsub();
+  }, [user.uid]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return creds;
+    return creds.filter(c => c.site.toLowerCase().includes(q) || (c.username || '').toLowerCase().includes(q));
+  }, [creds, search]);
+
+  const resetForm = () => setForm({ site: '', username: '', password: '', notes: '' });
+
+  const openAddForm = () => {
+    resetForm();
+    setEditingId(null);
+    setShowFormPw(false);
+    setShowForm(true);
+  };
+
+  const openEditForm = async (item) => {
+    let plain = revealedMap[item.id];
+    if (plain === undefined) {
+      try {
+        plain = await decryptString(vaultKey, item.cipher, item.iv);
+      } catch {
+        plain = '';
+      }
+    }
+    setForm({ site: item.site, username: item.username || '', password: plain, notes: item.notes || '' });
+    setEditingId(item.id);
+    setShowFormPw(false);
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const site = form.site.trim();
+    if (!site || !form.password) return;
+
+    setSaving(true);
+    try {
+      const { cipher, iv } = await encryptString(vaultKey, form.password);
+      if (editingId) {
+        await updateDoc(doc(db, 'users', user.uid, 'creds', editingId), {
+          site, username: form.username.trim(), cipher, iv, notes: form.notes.trim(), updatedAt: Date.now(),
+        });
+      } else {
+        await addDoc(collection(db, 'users', user.uid, 'creds'), {
+          site, username: form.username.trim(), cipher, iv, notes: form.notes.trim(), createdAt: Date.now(),
+        });
+      }
+      setShowForm(false);
+      resetForm();
+      setEditingId(null);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    await deleteDoc(doc(db, 'users', user.uid, 'creds', id));
+    setRevealedMap(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
+  const toggleReveal = async (item) => {
+    if (revealedMap[item.id] !== undefined) {
+      setRevealedMap(prev => {
+        const next = { ...prev };
+        delete next[item.id];
+        return next;
+      });
+      return;
+    }
+    try {
+      const plain = await decryptString(vaultKey, item.cipher, item.iv);
+      setRevealedMap(prev => ({ ...prev, [item.id]: plain }));
+    } catch {
+      // wrong key or corrupted entry — silently ignore
+    }
+  };
+
+  const handleCopy = async (text, key) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(prev => (prev === key ? null : prev)), 1500);
+    } catch {
+      // clipboard unavailable — ignore
+    }
+  };
+
+  const handleCopyPassword = async (item) => {
+    let plain = revealedMap[item.id];
+    if (plain === undefined) {
+      try {
+        plain = await decryptString(vaultKey, item.cipher, item.iv);
+      } catch {
+        return;
+      }
+    }
+    handleCopy(plain, `${item.id}-pw`);
+  };
+
+  return (
+    <>
+      <div className="px-4 sm:px-6 pt-4">
+        <div className="relative">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search saved logins..."
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="flex-1 px-4 sm:px-6 py-4 space-y-2.5 max-w-2xl w-full mx-auto pb-28">
+        {loading ? (
+          <div className="flex justify-center py-16 text-gray-500">
+            <LoaderCircle size={22} className="animate-spin" />
+          </div>
+        ) : (
+          <AnimatePresence initial={false}>
+            {filtered.map(item => {
+              const isRevealed = revealedMap[item.id] !== undefined;
+              return (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5 flex items-start gap-3"
+                >
+                  <div className="mt-0.5 shrink-0 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400">
+                    <Globe size={16} />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white break-words">{item.site}</p>
+                    {item.username && (
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-xs text-gray-400 truncate">{item.username}</p>
+                        <button onClick={() => handleCopy(item.username, `${item.id}-user`)} className="text-gray-500 hover:text-white shrink-0">
+                          <Copy size={11} />
+                        </button>
+                        {copiedKey === `${item.id}-user` && <span className="text-[10px] text-emerald-400 shrink-0">Copied</span>}
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span className="text-xs font-mono text-gray-300 tracking-wider">
+                        {isRevealed ? revealedMap[item.id] : '••••••••'}
+                      </span>
+                      <button onClick={() => toggleReveal(item)} className="text-gray-500 hover:text-white shrink-0">
+                        {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
+                      </button>
+                      <button onClick={() => handleCopyPassword(item)} className="text-gray-500 hover:text-white shrink-0">
+                        <Copy size={12} />
+                      </button>
+                      {copiedKey === `${item.id}-pw` && <span className="text-[10px] text-emerald-400 shrink-0">Copied</span>}
+                    </div>
+
+                    {item.notes && <p className="text-xs text-gray-500 mt-1.5 break-words">{item.notes}</p>}
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <button onClick={() => openEditForm(item)} className="p-1.5 text-gray-500 hover:text-white">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-gray-500 hover:text-red-400">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
+
+        {!loading && filtered.length === 0 && (
+          <div className="text-center py-16 text-gray-500">
+            <KeyRound size={32} className="mx-auto mb-3 opacity-40" />
+            <p className="text-sm">No saved logins yet</p>
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={openAddForm}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-600/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+      >
+        <Plus size={24} />
+      </button>
+
+      <AnimatePresence>
+        {showForm && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowForm(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-md w-full z-50 bg-[#0d0c15] border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-sm">{editingId ? 'Edit Login' : 'New Login'}</h2>
+                <button onClick={() => setShowForm(false)} className="p-1.5 text-gray-400 hover:text-white">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-gray-500 uppercase">Site / App</label>
+                  <input
+                    autoFocus
+                    type="text"
+                    value={form.site}
+                    onChange={(e) => setForm(f => ({ ...f, site: e.target.value }))}
+                    placeholder="e.g. github.com"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-gray-500 uppercase">Username / Email</label>
+                  <input
+                    type="text"
+                    value={form.username}
+                    onChange={(e) => setForm(f => ({ ...f, username: e.target.value }))}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-gray-500 uppercase">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showFormPw ? 'text' : 'password'}
+                      value={form.password}
+                      onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowFormPw(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                    >
+                      {showFormPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-gray-500 uppercase">Notes (optional)</label>
+                  <textarea
+                    rows={2}
+                    value={form.notes}
+                    onChange={(e) => setForm(f => ({ ...f, notes: e.target.value }))}
+                    placeholder="Any extra details..."
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs resize-none focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Add Login'}
+                </button>
+              </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ------------------------------------------------------------------
+// Page shell — auth gate, then Tasks / Creds tab switcher.
+// ------------------------------------------------------------------
+export default function TaskManager({ onBack }) {
+  const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState(null);
+  const [vaultKey, setVaultKey] = useState(null);
+  const [activeTab, setActiveTab] = useState('tasks');
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthChecked(true);
+      if (!u) setVaultKey(null);
+    });
+    return () => unsub();
+  }, []);
+
+  const handleLock = async () => {
+    setVaultKey(null);
+    await signOut(auth);
+  };
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-[#08070d] flex items-center justify-center">
+        <LoaderCircle size={24} className="text-blue-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || !vaultKey) {
+    return <VaultLogin onUnlock={(u, key) => { setUser(u); setVaultKey(key); }} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#08070d] text-white flex flex-col font-sans relative overflow-x-hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-10%] left-[-15%] w-[50%] h-[40%] rounded-full bg-blue-500/10 blur-[130px]" />
+        <div className="absolute bottom-[-10%] right-[-15%] w-[45%] h-[40%] rounded-full bg-purple-500/10 blur-[130px]" />
+      </div>
+
+      <header className="sticky top-0 z-40 bg-black/60 backdrop-blur-md border-b border-white/5 py-4 px-4 sm:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={onBack}
+            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors shrink-0"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div className="min-w-0">
+            <h1 className="text-lg font-heading font-bold">Private Space</h1>
+            <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleLock}
+          className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors shrink-0"
+          title="Lock & sign out"
+        >
+          <Lock size={16} />
+        </button>
+      </header>
+
+      <div className="px-4 sm:px-6 pt-4">
+        <div className="flex gap-1.5 bg-white/5 border border-white/10 rounded-xl p-1 max-w-xs">
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${activeTab === 'tasks' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-gray-400 hover:text-white border border-transparent'}`}
+          >
+            <ListTodo size={14} /> Tasks
+          </button>
+          <button
+            onClick={() => setActiveTab('creds')}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${activeTab === 'creds' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-gray-400 hover:text-white border border-transparent'}`}
+          >
+            <KeyRound size={14} /> Creds
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'tasks' ? <TasksTab /> : <CredsTab user={user} vaultKey={vaultKey} />}
     </div>
   );
 }

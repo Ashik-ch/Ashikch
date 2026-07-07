@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ListTodo } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { name: 'Home', href: '#home' },
@@ -48,12 +48,6 @@ export default function Navbar() {
                 {link.name}
               </a>
             ))}
-            <a
-              href="#tasks"
-              className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors interactive"
-            >
-              <ListTodo size={16} /> Tasks
-            </a>
             <a href="#contact" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors interactive shadow-lg shadow-blue-600/20">
               Let's Talk
             </a>
@@ -89,13 +83,6 @@ export default function Navbar() {
                   {link.name}
                 </a>
               ))}
-              <a
-                href="#tasks"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-lg font-medium text-gray-800 hover:text-blue-600 interactive flex items-center gap-2"
-              >
-                <ListTodo size={18} /> Tasks
-              </a>
             </div>
           </motion.div>
         )}
