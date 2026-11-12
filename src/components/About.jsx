@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import profile from '../assets/ashik.jpg';
 import { portfolioData } from '../data/portfolioData';
 
@@ -10,13 +10,6 @@ const stats = [
 ];
 
 export default function About() {
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const smoothX = useSpring(mouseX, { stiffness: 120, damping: 18 });
-  const smoothY = useSpring(mouseY, { stiffness: 120, damping: 18 });
-
 
   return (
     <section id="about" className="py-32 relative overflow-hidden">
@@ -45,27 +38,16 @@ export default function About() {
           >
             <div
               className="relative rounded-3xl overflow-hidden glass-card p-2 aspect-[4/5] group max-w-md mx-auto"
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                mouseX.set(e.clientX - rect.left);
-                mouseY.set(e.clientY - rect.top);
-              }}
             >
               {/* Hover Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/50 to-purple-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-
-              {/* Spotlight Effect */}
-              <motion.div
-                className="absolute inset-0 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  background: `radial-gradient(220px circle at ${smoothX}px ${smoothY}px, rgba(255,255,255,0.30), transparent 60%)`,
-                }}
-              />
 
               {/* Image */}
               <img
                 src={profile}
                 alt="Ashik Portrait"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover rounded-2xl transition-transform duration-700 group-hover:scale-105"
               />
 

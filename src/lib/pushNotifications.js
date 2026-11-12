@@ -1,5 +1,5 @@
-import { getToken, onMessage } from 'firebase/messaging';
-import { messaging } from './firebase';
+import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
+import { firebaseApp } from './firebaseApp';
 
 export async function enableFirebasePushNotifications({ onReady, onError } = {}) {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
@@ -27,6 +27,8 @@ export async function enableFirebasePushNotifications({ onReady, onError } = {})
     }
 
     try {
+        if (!(await isSupported())) return false;
+        const messaging = getMessaging(firebaseApp);
         const registration = await navigator.serviceWorker.ready;
         const token = await getToken(messaging, {
             vapidKey,
@@ -41,7 +43,7 @@ export async function enableFirebasePushNotifications({ onReady, onError } = {})
             return false;
         }
 
-        onMessage(messaging, (payload) => {
+        return onMessage(messaging, (payload) => {
             const title = payload?.notification?.title || 'Portfolio Reminder';
             const body = payload?.notification?.body || 'You have a new reminder';
 
@@ -52,7 +54,6 @@ export async function enableFirebasePushNotifications({ onReady, onError } = {})
             });
         });
 
-        return true;
     } catch (error) {
         onError?.(error);
         return false;

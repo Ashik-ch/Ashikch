@@ -1,10 +1,13 @@
-import img1 from '../assets/1.png';
-import img2 from '../assets/2.png';
-import img3 from '../assets/3.png';
-import img4 from '../assets/4.png';
-import img5 from '../assets/5.png';
-import img6 from '../assets/6.png';
-import img7 from '../assets/7.png';
+import img1 from '../assets/1.webp';
+import img2 from '../assets/2.webp';
+import img3 from '../assets/3.webp';
+import img4 from '../assets/4.webp';
+import img5 from '../assets/5.webp';
+import img6 from '../assets/6.webp';
+import img7 from '../assets/7.webp';
+import gtecMahe from '../assets/gtec-mahe.webp';
+import mythiliManthra from '../assets/mythili-manthra.webp';
+import hgLegalServices from '../assets/hg-legal-services.webp';
 
 export const portfolioData = {
   personal_info: {
@@ -129,6 +132,30 @@ export const portfolioData = {
   languages: ["English", "Malayalam", "Tamil", "Hindi"],
   projects: [
     {
+      name: "G-TEC Mahe",
+      company: "G-TEC Mahe",
+      description: "An education website showcasing professional courses, practical training, student placements, and campus life, with course enquiries and career guidance for prospective learners.",
+      tags: ["Education", "Course Catalogue", "Career Guidance"],
+      link: "https://gtecmahe.com/",
+      img: gtecMahe
+    },
+    {
+      name: "Mythili Manthra",
+      company: "Mythili Manthra Skin & Hair Clinic",
+      description: "A skin and hair clinic website presenting dermatology, hair restoration, and aesthetic services, with treatment information, clinic details, and appointment enquiries.",
+      tags: ["Healthcare", "Treatment Catalogue", "Appointments"],
+      link: "https://www.mythilimanthra.in/",
+      img: mythiliManthra
+    },
+    {
+      name: "Health Gloss Legal Services",
+      company: "Health Gloss Legal Services",
+      description: "A professional services website presenting medical record review and litigation support, with regional service information, consultation enquiries, and sample report requests for legal teams.",
+      tags: ["Legal Services", "Medical Record Review", "Consultations"],
+      link: "https://hglegalservices.com/",
+      img: hgLegalServices
+    },
+    {
       name: "Restaurant Management ERP - Eat and Drink",
       company: "VAAS Intelligent Technology Solutions",
       duration: "Sep 2023 – Mar 2025",
@@ -146,15 +173,6 @@ export const portfolioData = {
       link: "http://loandashboard.vaas.tech/",
       img: img2
 
-    },
-    {
-      name: "Consumer Loan Website – Thazhayil Finance",
-      company: "VAAS Intelligent Technology Solutions",
-      duration: "Jan 2025 – Mar 2025",
-      description: "Developed a loan app for Thazhayil Finance, allowing users to apply, track status, and manage accounts, while the admin panel streamlines verification and approvals for better efficiency.",
-      technologies: ["Angular 18", "Angular Material", "Bitbucket", "Source Tree"],
-      link: "https://www.thazhayilfinance.com/",
-      img: img3
     },
     {
       name: "Food Ordering & Delivery App - Amruthashala",
@@ -191,7 +209,16 @@ export const portfolioData = {
       technologies: ["React", "JavaScript", "Tailwind CSS"],
       link: "https://goidt.in/",
       img: img7
-    }
+    },
+    {
+      name: "Consumer Loan Website – Thazhayil Finance",
+      company: "VAAS Intelligent Technology Solutions",
+      duration: "Jan 2025 – Mar 2025",
+      description: "Developed a loan app for Thazhayil Finance, allowing users to apply, track status, and manage accounts, while the admin panel streamlines verification and approvals for better efficiency.",
+      technologies: ["Angular 18", "Angular Material", "Bitbucket", "Source Tree"],
+      link: "https://www.thazhayilfinance.com/",
+      img: img3
+    },
   ],
   activities: [
     "Active participation in various awareness programs organized by colleges",

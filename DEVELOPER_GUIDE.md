@@ -6,7 +6,7 @@
 * Tailwind CSS
 * Framer Motion
 * EmailJS
-* WebGL Shader Effects
+* Static CSS gradients with a cursor-responsive fine grid in the hero
 
 ---
 
@@ -48,7 +48,7 @@ This website is a premium, interactive software engineering portfolio built with
 *   **Build Tool & Dev Server:** Vite 8 (extremely fast compiling and hot-module reloading)
 *   **Styling Engine:** Tailwind CSS v4 (using the modern `@import "tailwindcss"` engine and standard CSS `@theme` variables)
 *   **Animation System:** Framer Motion 12 (smooth 3D hover actions, slide-ins, and scroll-bound animations)
-*   **WebGL Shaders:** `@paper-design/shaders-react` (high-performance WebGL-based mesh gradient background and border effects)
+*   **Hero Background:** Static CSS gradients with a 36px square grid, subtle cells, and a crisp cursor-following snake trail along grid edges (14 vertices maximum, no fade). Mouse parallax moves separate wrappers at different depths, leaving text and links stationary. Updates are batched to one frame per pointer movement and eased with CSS; no continuous JavaScript loop runs. Parallax resets on pointer leave, scroll, blur, and resize, and is disabled for touch and reduced motion. `HeroPattern.jsx` disables pointer updates off-screen, in hidden tabs, and for reduced motion. Avoid continuous full-screen WebGL rendering; it caused excessive GPU load on the live portfolio.
 *   **Forms & Messaging:** EmailJS (direct mail sending from the contact form without a backend)
 
 ---
@@ -68,20 +68,18 @@ The codebase is modular, keeping components decoupled and configuration details 
 │   ├── assets/               # Local images, SVG icons, and portrait media
 │   ├── components/           # React Functional Sections
 │   │   ├── ui/               # Core atomic UI primitives
-│   │   │   └── hero.tsx      # WebGL Shader header & main title section
+│   │   │   └── hero.tsx      # Hero title, actions, and interactive grid
 │   │   ├── About.jsx         # stats cards, interactive portrait spotlight
 │   │   ├── Contact.jsx       # EmailJS form controls and statuses
 │   │   ├── CustomCursor.jsx  # Interactive mouse follower primitives
 │   │   ├── Experience.jsx    # Professional vertical journey line
 │   │   ├── Layout.jsx        # App wrapper, global glows, and standard nav links
-│   │   ├── Navbar.jsx        # Glassmorphic responsive header
-│   │   ├── PageLoader.jsx    # Pre-loading progress bar and randomized welcome titles
+│   │   ├── Navbar.jsx        # Floating navigation dock
 │   │   ├── Projects.jsx      # Tilt-and-hover project display cards
 │   │   ├── Skills.jsx        # Technical skill chips
 │   │   └── Testimonials.jsx  # Client feedback cards
 │   ├── data/
 │   │   └── portfolioData.js  # CENTRALIZED DATA CONSTANT (Change text here!)
-│   ├── App.css               # Styling overrides
 │   ├── App.jsx               # Page state controller, AnimatePresence wrapper
 │   ├── index.css             # Tailwind v4 core layers and utility definitions
 │   └── main.jsx              # React DOM mounting entry point
@@ -98,12 +96,13 @@ The components automatically parse this file dynamically.
 
 ---
 
-## 3. SEO Fallback Architecture
+## 3. First Paint and No-JavaScript Fallback
 
-To guarantee search engine crawlers can index the site perfectly even if they block JavaScript execution, `index.html` implements a **Semantic SEO Fallback inside the `<div id="root">` element**:
-*   When a bot crawls the page, it reads standard, highly structured `<h1>`, `<h2>`, and `<h3>` tags with internal link listings.
-*   When a user loads the page, React instantly mounts and wipes the fallback, replacing it with the high-fidelity animated interface.
-*   This achieves perfect SEO scores while maintaining advanced aesthetic designs.
+`index.html` includes a styled hero inside `#root`, with small inline critical styles so it does not depend on JavaScript or the main stylesheet. React replaces it with the interactive hero when ready. The hero content is visible immediately on mount, without a delayed entrance animation.
+
+Keep the startup hero's copy and responsive dimensions in sync with `src/components/ui/hero.tsx` and `src/data/portfolioData.js`. Additional static navigation, project, and contact information lives in `<noscript>` so it remains available without JavaScript and does not flash before the app starts. This fallback does not guarantee search rankings or SEO scores.
+
+Run `node scripts/check-startup.mjs` against the production preview to check delayed JavaScript, unavailable CSS, no-JavaScript content, and desktop/mobile layout stability. On Windows, set `$env:BROWSER_CHANNEL = 'msedge'` to use installed Edge.
 
 ---
 
@@ -174,6 +173,19 @@ npm run deploy
 
 During maintenance, be extremely careful not to violate the following performance architecture constraints:
 
-*   **WebGL Uniform Stability:** WebGL color palettes, coordinate parameters, and CSS styles must **never** be defined inline within the render loops of React components. Always keep them as static constants outside the functional components to prevent referential equality checks from thrasher-recompiling WebGL shaders at 60 FPS (which will lock up the browser's thread and freeze Chrome).
-*   **Canvas Overdraw Guard:** Keep only one active primary `<MeshGradient>` in `hero.tsx`. Layering multiple active canvas nodes overlaying each other creates a massive fill-rate performance cost and leads to severe GPU frame lag.
+*   **Idle Rendering:** Keep the hero's base gradients static. Move the grid only in response to the pointer and disable updates when the hero is not visible. Pointer effects should settle without a continuous JavaScript animation loop.
+*   **Optional Features:** Keep TaskManager behind its dynamic import. Firebase Auth and Firestore must not be imported by the public portfolio; messaging loads separately for visitors who enable notifications.
+*   **Images:** Project cards use lazy-loaded WebP files. After editing the source PNGs listed in `scripts/optimize-images.mjs`, run `npm run optimize:images` and commit the generated WebP files. Original PNGs are retained as editable sources and are not included in the production build. Refresh the newer website previews with `node scripts/capture-project-previews.mjs` (optionally pass `gtec-mahe`, `mythili-manthra`, or `hg-legal-services` to refresh one). Inspect captures before optimizing; remote sites may show loading screens. The capture script supports the same `BROWSER_CHANNEL` option as the performance check.
+*   **Pointer Effects:** Use motion values for card tilt, not React state updates on every pointer movement. Respect reduced-motion settings and skip tilt on touch input.
 *   **Timer & Timeout Cleanups:** Any `setInterval` or `setTimeout` declared inside `useEffect` must return a precise cleanup handler (`clearInterval` / `clearTimeout`) to avoid severe browser memory leaks when routing or loading states toggle.
+
+### Performance verification
+
+Run `npm run build`, then `npm run preview -- --host 127.0.0.1 --port 4173`.
+In a second terminal run `npm run check:performance`. Install the test browser with
+`npx playwright install chromium` first, or on Windows use an installed Edge browser:
+`$env:BROWSER_CHANNEL = 'msedge'; npm run check:performance`.
+The check covers desktop/mobile navigation, reduced motion, image decoding,
+deferred task loading, the task login screen, and idle animation work. Screenshots
+are saved to a temporary directory, outside the deployment output. It does not
+sign in, send contact messages, or create reminders.

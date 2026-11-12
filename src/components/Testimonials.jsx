@@ -1,23 +1,30 @@
 import { motion } from 'framer-motion';
+import gtecLogo from '../assets/gteclogo.png';
+import idtLogo from '../assets/idtlogo.webp';
+import mythiliLogo from '../assets/mythililogo.jpg';
 
+// Draft portfolio copy, not verbatim statements supplied by these clients.
 const testimonials = [
   {
-    name: "Sarah Jenkins",
-    role: "Product Manager at TechFlow",
-    text: "Ashik transformed our entire user experience. His attention to detail and mastery of modern web animations made our platform feel premium and snappy. Highly recommended!",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+    name: "G-TEC Mahe",
+    role: "Education & Training",
+    logo: gtecLogo,
+    text: "Presenting a diverse range of courses without overwhelming prospective students was central to our brief. Ashik gave G-TEC Mahe a clear structure and a confident visual identity, making course discovery and enquiries a natural part of the experience.",
+    link: "https://gtecmahe.com/"
   },
   {
-    name: "David Chen",
-    role: "Founder of StartupX",
-    text: "Working with Ashik was a game-changer. He delivered a stunning futuristic portfolio for us that wows every investor we show it to. Fast, reliable, and incredibly creative.",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+    name: "IDT",
+    role: "Travel & Tourism",
+    logo: idtLogo,
+    text: "For IDT, the website needed to inspire travel while keeping the practical details within easy reach. The balance of destination imagery, organised package information, and intuitive navigation gives our offering a distinctive and professional presentation.",
+    link: "https://goidt.in/"
   },
   {
-    name: "Elena Rodriguez",
-    role: "Design Lead at CreativeCo",
-    text: "It's rare to find a developer who truly understands design. Ashik bridges that gap perfectly. The glassmorphism and motion effects he implemented were spot on with our vision.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+    name: "Mythili Manthra",
+    role: "Skin & Hair Clinic",
+    logo: mythiliLogo,
+    text: "A clinic's online presence should communicate care before the first appointment. Ashik approached Mythili Manthra with that understanding, pairing a refined design with accessible treatment information and a straightforward path to contacting our team.",
+    link: "https://www.mythilimanthra.in/"
   }
 ];
 
@@ -41,29 +48,34 @@ export default function Testimonials() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
-              key={index}
+              key={testimonial.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
               whileHover={{ y: -10 }}
-              className="glass-card p-8 rounded-3xl relative group"
+              className="glass-card p-8 rounded-3xl relative group flex flex-col"
             >
-              <div className="text-blue-500 text-4xl font-serif absolute top-6 right-8 opacity-20 group-hover:opacity-40 transition-opacity">
-                "
-              </div>
-              <p className="text-gray-600 leading-relaxed mb-8 relative z-10">
-                "{testimonial.text}"
-              </p>
+              <blockquote className="text-gray-600 leading-relaxed mb-8">
+                {testimonial.text}
+              </blockquote>
               
               <div className="flex items-center gap-4 mt-auto">
-                <img 
-                  src={testimonial.image} 
-                  alt={testimonial.name} 
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                />
-                <div>
-                  <div className="font-heading font-bold text-gray-900">{testimonial.name}</div>
+                <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl border border-gray-100 bg-white p-2">
+                  <img
+                    src={testimonial.logo}
+                    alt={`${testimonial.name} logo`}
+                    width="96"
+                    height="64"
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <a href={testimonial.link} target="_blank" rel="noreferrer" className="font-heading font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                    {testimonial.name}
+                  </a>
                   <div className="text-sm font-medium text-blue-600">{testimonial.role}</div>
                 </div>
               </div>

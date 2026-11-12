@@ -1,59 +1,127 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+
+const INTERACTIVE = 'a[href], button:not(:disabled), [role="button"], summary, .interactive';
+const NATIVE_CURSOR = 'input, textarea, select, [contenteditable]:not([contenteditable="false"]), iframe, [data-native-cursor]';
 
 export default function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
+  const rootRef = useRef(null);
+  const dotRef = useRef(null);
+  const ringRef = useRef(null);
 
   useEffect(() => {
-    const updateMousePosition = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    const media = window.matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    const root = rootRef.current;
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    let detach = () => {};
+
+    const configure = () => {
+      detach();
+      if (!media.matches) return;
+
+      let frame = 0;
+      let visible = false;
+      let targetX = 0;
+      let targetY = 0;
+      let ringX = 0;
+      let ringY = 0;
+      let lastTime = 0;
+
+      const hide = () => {
+        visible = false;
+        root.dataset.visible = 'false';
+        root.dataset.pressed = 'false';
+        document.documentElement.classList.remove('cinematic-cursor-active');
+        cancelAnimationFrame(frame);
+        frame = 0;
+        lastTime = 0;
+      };
+
+      const draw = (time) => {
+        frame = 0;
+        const delta = lastTime ? Math.min(time - lastTime, 64) : 16;
+        lastTime = time;
+        const follow = 1 - Math.exp(-delta / 65);
+        ringX += (targetX - ringX) * follow;
+        ringY += (targetY - ringY) * follow;
+        dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+
+        if (Math.abs(targetX - ringX) + Math.abs(targetY - ringY) > 0.1) {
+          frame = requestAnimationFrame(draw);
+        } else {
+          ring.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+          lastTime = 0;
+        }
+      };
+
+      const move = (event) => {
+        if (event.pointerType !== 'mouse' || !(event.target instanceof Element) || event.target.closest(NATIVE_CURSOR)) {
+          hide();
+          return;
+        }
+        targetX = event.clientX;
+        targetY = event.clientY;
+        root.dataset.hover = String(Boolean(event.target.closest(INTERACTIVE)));
+        if (!visible) {
+          // Appear at the pointer instead of flying in from the corner.
+          ringX = targetX;
+          ringY = targetY;
+          dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+          ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+          visible = true;
+          root.dataset.visible = 'true';
+          document.documentElement.classList.add('cinematic-cursor-active');
+        }
+        if (!frame) frame = requestAnimationFrame(draw);
+      };
+
+      const press = (event) => {
+        if (visible && event.pointerType === 'mouse') root.dataset.pressed = 'true';
+      };
+      const release = () => { root.dataset.pressed = 'false'; };
+      const leave = (event) => { if (!event.relatedTarget) hide(); };
+      const keyboard = (event) => { if (event.key === 'Tab') hide(); };
+      const visibility = () => { if (document.hidden) hide(); };
+
+      document.addEventListener('pointermove', move, { passive: true });
+      document.addEventListener('pointerover', move, { passive: true });
+      document.addEventListener('pointerdown', press, { passive: true });
+      document.addEventListener('pointerup', release, { passive: true });
+      document.addEventListener('pointercancel', hide);
+      document.addEventListener('pointerout', leave);
+      document.addEventListener('keydown', keyboard);
+      document.addEventListener('visibilitychange', visibility);
+      window.addEventListener('blur', hide);
+      window.addEventListener('scroll', hide, { passive: true });
+
+      detach = () => {
+        hide();
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerover', move);
+        document.removeEventListener('pointerdown', press);
+        document.removeEventListener('pointerup', release);
+        document.removeEventListener('pointercancel', hide);
+        document.removeEventListener('pointerout', leave);
+        document.removeEventListener('keydown', keyboard);
+        document.removeEventListener('visibilitychange', visibility);
+        window.removeEventListener('blur', hide);
+        window.removeEventListener('scroll', hide);
+      };
     };
 
-    const handleMouseOver = (e) => {
-      if (
-        e.target.tagName.toLowerCase() === 'button' ||
-        e.target.tagName.toLowerCase() === 'a' ||
-        e.target.closest('button') ||
-        e.target.closest('a') ||
-        e.target.classList.contains('interactive')
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
-    };
-
-    window.addEventListener('mousemove', updateMousePosition);
-    window.addEventListener('mouseover', handleMouseOver);
-
+    configure();
+    media.addEventListener('change', configure);
     return () => {
-      window.removeEventListener('mousemove', updateMousePosition);
-      window.removeEventListener('mouseover', handleMouseOver);
+      detach();
+      media.removeEventListener('change', configure);
     };
   }, []);
 
   return (
-    <>
-      <motion.div
-        className="fixed top-0 left-0 w-4 h-4 bg-accent-primary/80 rounded-full pointer-events-none z-[9999]"
-        animate={{
-          x: mousePosition.x - 8,
-          y: mousePosition.y - 8,
-          scale: isHovering ? 0.5 : 1,
-        }}
-        transition={{ type: 'tween', ease: 'backOut', duration: 0.1 }}
-      />
-      <motion.div
-        className="fixed top-0 left-0 w-12 h-12 border border-accent-primary/30 bg-accent-primary/5 rounded-full pointer-events-none z-[9998]"
-        animate={{
-          x: mousePosition.x - 24,
-          y: mousePosition.y - 24,
-          scale: isHovering ? 1.5 : 1,
-          backgroundColor: isHovering ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)'
-        }}
-        transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
-      />
-    </>
+    <div ref={rootRef} className="cinematic-cursor" data-visible="false" aria-hidden="true">
+      <div ref={dotRef} className="cinematic-cursor-dot"><span /></div>
+      <div ref={ringRef} className="cinematic-cursor-ring"><span /></div>
+    </div>
   );
 }

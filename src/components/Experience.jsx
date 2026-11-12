@@ -41,7 +41,7 @@ export default function Experience() {
 
                 <div className="md:w-1/2" />
                 <div className="md:w-1/2 relative group">
-                  <div className={`glass-card p-8 rounded-3xl transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl ${index % 2 === 0 ? 'md:mr-8' : 'md:ml-8'
+                  <div className={`journey-card glass-card relative p-8 rounded-3xl ${index % 2 === 0 ? 'md:mr-8' : 'md:ml-8'
                     }`}>
                     <a href={exp.link} target="_blank" rel="noopener noreferrer">
                       <div className="text-blue-600 font-mono text-sm font-bold mb-2">{exp.period}</div>
