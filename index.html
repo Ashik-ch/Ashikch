@@ -33,13 +33,71 @@
   <meta property="twitter:description"
     content="Frontend Software Engineer with 3+ years of experience in building scalable, high-performance user interfaces." />
   <meta property="twitter:image" content="https://ashikch.com/images.jpg" />
-  <script type="module" crossorigin src="/assets/index-CgDqrfuO.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-Bypg9ZxM.css">
+  <!-- Critical first-paint styles: independent of JavaScript and the CSS bundle. -->
+  <style>
+    body { margin: 0; }
+    .startup-hero, .startup-hero * { box-sizing: border-box; }
+    .startup-hero {
+      position: relative; display: flex; align-items: flex-end; overflow: hidden;
+      min-height: 100vh; min-height: 100svh; color: white;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: linear-gradient(90deg, rgba(0,0,0,.65), transparent),
+        radial-gradient(ellipse at 80% 35%, rgba(6,182,212,.22), transparent 55%),
+        radial-gradient(ellipse at 85% 85%, rgba(139,92,246,.22), transparent 50%),
+        radial-gradient(ellipse at 40% 10%, rgba(139,92,246,.16), transparent 50%), #030712;
+    }
+    .startup-hero::before {
+      content: ""; position: absolute; inset: -48px; pointer-events: none;
+      background-image: linear-gradient(rgba(125,211,252,.1) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(125,211,252,.1) 1px,transparent 1px);
+      background-size: 36px 36px;
+    }
+    .startup-copy { position: relative; width: 100%; max-width: 768px; padding: 112px 24px 128px; }
+    .startup-title { margin-bottom: 24px; color: #67e8f9; font-size: 12px; line-height: 16px; font-weight: 300; text-transform: uppercase; letter-spacing: .2em; }
+    .startup-hero h1 { margin: 0 0 24px; font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -.025em; }
+    .startup-hero h1 span { display: block; margin-bottom: 8px; font-size: 36px; line-height: 40px; font-weight: 300; background: linear-gradient(to right, white, #22d3ee, #a78bfa); background-clip: text; color: transparent; }
+    .startup-hero h1 strong { display: block; font-weight: 900; }
+    .startup-hero p { max-width: 576px; margin: 0 0 32px; font-size: 18px; font-weight: 300; line-height: 1.625; color: rgba(255,255,255,.7); }
+    .startup-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .startup-actions a { padding: 16px 32px; border-radius: 9999px; color: white; text-decoration: none; font-size: 14px; line-height: 20px; font-weight: 500; border: 2px solid rgba(255,255,255,.3); }
+    .startup-actions a + a { border: 0; background: rgba(255,255,255,.1); font-weight: 600; }
+    .startup-actions a:focus-visible { outline: 2px solid #67e8f9; outline-offset: 4px; }
+    .offline-content { padding: 32px; background: white; color: #111827; font: 16px/1.6 system-ui, sans-serif; }
+    @media (min-width: 768px) {
+      .startup-copy { padding-left: 32px; padding-right: 32px; }
+      .startup-title { font-size: 14px; line-height: 20px; }
+      .startup-hero h1 { font-size: 72px; }
+      .startup-hero h1 span { font-size: 48px; line-height: 48px; }
+      .startup-actions { gap: 24px; }
+      .startup-actions a { padding-left: 40px; padding-right: 40px; }
+    }
+    @media (min-width: 1024px) {
+      .startup-hero h1 { font-size: 96px; }
+      .startup-hero h1 span { font-size: 60px; line-height: 60px; }
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-CVm9G1-k.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B-Ddk7IJ.css">
 </head>
 
 <body>
   <div id="root">
-    <!-- Semantic SEO Fallback for Search Crawlers and Assistive Technologies (Replaced by React on mount) -->
+    <!-- Visible immediately, even while the JavaScript bundle is downloading. -->
+    <section id="home" class="startup-hero">
+      <div class="startup-copy">
+        <div class="startup-title">Software Engineer &middot; Designer &middot; System Architect</div>
+        <h1><span>Hi, I'm</span><strong>Ashik C H</strong></h1>
+        <p>Build stunning modern websites, futuristic interfaces, and high performance digital products with clean code and creative design. Turning ideas into premium web experiences.</p>
+        <div class="startup-actions">
+          <a href="#projects">View Projects</a>
+          <a href="#contact">Hire Me</a>
+        </div>
+      </div>
+    </section>
+  </div>
+  <noscript>
+    <div class="offline-content">
     <header>
       <nav>
         <ul>
@@ -55,15 +113,6 @@
     </header>
 
     <main>
-      <!-- H1 Main Heading -->
-      <section id="home">
-        <h1>Ashik C H - Lead Software Engineer, Designer &amp; System Architect</h1>
-        <p>Building premium digital products, futuristic interfaces, and high-performance modern web experiences with
-          clean code and creative design.</p>
-        <a href="#projects">View My Projects</a>
-        <a href="#contact">Hire Me / Get in Touch</a>
-      </section>
-
       <!-- Section H2 Headings -->
       <section id="about">
         <h2>About Me - Digital Experience Builder</h2>
@@ -117,7 +166,9 @@
         <p>Email: ashik@ashikch.com | Bur Dubai, Dubai, UAE</p>
       </section>
     </main>
-  </div>
+  </div>
+
+  </noscript>
 </body>
 
 </html>
